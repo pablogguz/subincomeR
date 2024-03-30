@@ -7,6 +7,8 @@
 
 An R package to access [DOSE](https://www.nature.com/articles/s41597-023-02323-8), a global dataset of reported sub-national income data covering more than 1,600 sub-national regions across 83 countries over the period 1960-2020. Data is gather directly from the relevant governmental statistical agencies, yearbooks, and academic literature, and harmonised accordingly. 
 
+![](man/figures/map.png)
+
 # Installation 
 
 ```
