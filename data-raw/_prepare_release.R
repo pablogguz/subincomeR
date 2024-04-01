@@ -8,5 +8,3 @@ devtools::check()
 
 # Package version ----
 usethis::use_version()
-
-
