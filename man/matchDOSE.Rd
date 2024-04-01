@@ -10,7 +10,9 @@ matchDOSE(
   df = NULL,
   lat_col = "lat",
   long_col = "long",
-  years = NULL
+  years = NULL,
+  countries = NULL,
+  format_countries = "iso3c"
 )
 }
 \arguments{
@@ -30,18 +32,25 @@ Defaults to "long".}
 
 \item{years}{Optional vector of years for which to filter the DOSE dataset.
 If NULL (the default), a 1:m matching is performed and data for all years are returned.}
+
+\item{countries}{Optional vector or dataframe column name of country identifiers.
+If provided, the function skips the country matching step. The identifiers can be in the format specified
+by 'format_countries'. This can significantly reduce processing time.}
+
+\item{format_countries}{Specifies the format of the country identifiers in 'countries'.
+Options are "country.name" (default), "iso3c", and "iso2c". This parameter is ignored if 'countries' is NULL.}
 }
 \value{
 A dataframe with input coordinates (and any additional input dataframe columns) and matched DOSE data.
 }
 \description{
 This function matches input coordinates (latitude and longitude) to the DOSE dataset.
-It can accept either vectors of latitudes and longitudes or a dataframe containing
+It accepts either vectors of latitudes and longitudes or a dataframe containing
 these coordinates. Before matching, it ensures that only unique coordinates are processed
 to avoid duplicating operations on identical coordinates. It downloads the GADM-1 geometries
 from a specified URL if not already cached locally, unzips it, and returns a dataframe with
-unique input coordinates and matched DOSE data.
-Optionally, the function can filter the DOSE dataset by specific years.
+unique input coordinates and matched DOSE data. Optionally, the function can filter the DOSE dataset by specific years.
+Additionally, users can specify countries directly to skip the country matching step, potentially saving processing time.
 }
 \examples{
 # Match two pairs of coordinates to DOSE using vectors
@@ -53,4 +62,8 @@ matched_data_df <- matchDOSE(df = df, lat_col = "latitude", long_col = "longitud
 
 # Match coordinates to DOSE for a specific year using vectors
 matched_data_2019 <- matchDOSE(lat = c(19.4326), long = c(-99.1332), years = 2019)
+
+# Match coordinates and specify countries to skip country matching
+matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
+                                         countries = c("MEX", "GBR"), format_countries = "iso3c")
 }

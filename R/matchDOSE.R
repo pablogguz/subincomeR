@@ -1,12 +1,12 @@
 #' Match coordinates to DOSE dataset
 #'
 #' This function matches input coordinates (latitude and longitude) to the DOSE dataset.
-#' It can accept either vectors of latitudes and longitudes or a dataframe containing
+#' It accepts either vectors of latitudes and longitudes or a dataframe containing
 #' these coordinates. Before matching, it ensures that only unique coordinates are processed
 #' to avoid duplicating operations on identical coordinates. It downloads the GADM-1 geometries
 #' from a specified URL if not already cached locally, unzips it, and returns a dataframe with
-#' unique input coordinates and matched DOSE data.
-#' Optionally, the function can filter the DOSE dataset by specific years.
+#' unique input coordinates and matched DOSE data. Optionally, the function can filter the DOSE dataset by specific years.
+#' Additionally, users can specify countries directly to skip the country matching step, potentially saving processing time.
 #'
 #' @param lat Optional vector of latitudes of the points to match. Required if no dataframe is provided.
 #' @param long Optional vector of longitudes of the points to match. Required if no dataframe is provided.
@@ -19,6 +19,11 @@
 #'        Defaults to "long".
 #' @param years Optional vector of years for which to filter the DOSE dataset.
 #'        If NULL (the default), a 1:m matching is performed and data for all years are returned.
+#' @param countries Optional vector or dataframe column name of country identifiers.
+#'        If provided, the function skips the country matching step. The identifiers can be in the format specified
+#'        by 'format_countries'. This can significantly reduce processing time.
+#' @param format_countries Specifies the format of the country identifiers in 'countries'.
+#'        Options are "country.name" (default), "iso3c", and "iso2c". This parameter is ignored if 'countries' is NULL.
 #' @return A dataframe with input coordinates (and any additional input dataframe columns) and matched DOSE data.
 #' @import sf
 #' @importFrom dplyr filter left_join select mutate
@@ -40,8 +45,29 @@
 #'
 #' # Match coordinates to DOSE for a specific year using vectors
 #' matched_data_2019 <- matchDOSE(lat = c(19.4326), long = c(-99.1332), years = 2019)
+#'
+#' # Match coordinates and specify countries to skip country matching
+#' matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
+#'                                          countries = c("MEX", "GBR"), format_countries = "iso3c")
 
-matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat", long_col = "long", years = NULL) {
+matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
+                      long_col = "long", years = NULL, countries = NULL,
+                      format_countries = "iso3c") {
+
+  # Ensure necessary packages are loaded
+  requireNamespace("sf", quietly = TRUE)
+  requireNamespace("zip", quietly = TRUE)
+  requireNamespace("rappdirs", quietly = TRUE)
+  requireNamespace("tidygeocoder", quietly = TRUE)
+  requireNamespace("dplyr", quietly = TRUE)
+  requireNamespace("countrycode", quietly = TRUE)
+  requireNamespace("curl", quietly = TRUE)
+
+  # Validate format_countries input
+  valid_formats <- c("iso2c", "iso3c", "country.name")
+  if (!format_countries %in% valid_formats) {
+    stop("Invalid format_countries value. Please use one of: 'iso2c', 'iso3c', or 'country.name'.")
+  }
 
   # Determine input type and prepare data accordingly
   if (!is.null(df)) {
@@ -66,14 +92,11 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat", long_
     coords_df <- data.frame(lat = lat, long = long)
   }
 
-  # Ensure necessary packages are loaded
-  requireNamespace("sf", quietly = TRUE)
-  requireNamespace("zip", quietly = TRUE)
-  requireNamespace("rappdirs", quietly = TRUE)
-  requireNamespace("tidygeocoder", quietly = TRUE)
-  requireNamespace("dplyr", quietly = TRUE)
-  requireNamespace("countrycode", quietly = TRUE)
-  requireNamespace("curl", quietly = TRUE)
+  # Ensure coordinates are unique in the coordinates df
+  coords_df <- coords_df %>%
+    dplyr::group_by(.data$lat, .data$long) %>%
+    dplyr::filter(dplyr::row_number()==1) %>%
+    dplyr::ungroup()
 
   # Define the cache directory using rappdirs
   cache_dir <- rappdirs::user_cache_dir("subincomeR")
@@ -102,18 +125,45 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat", long_
     suppressWarnings(unzip(zipfile = zip_path, exdir = cache_dir))
   }
 
-  # Perform reverse geocoding to get the country code
-  coords_df <- coords_df %>%
-    dplyr::select(.data$lat, .data$long) %>%
-    dplyr::distinct(.data$lat, .data$long)
+  # If countries are provided, prepare the country codes
+  if (!is.null(countries) && !is.null(format_countries)) {
 
-  results <- tidygeocoder::reverse_geocode(coords_df, lat = "lat", long = "long", method = "osm", full_results = TRUE) %>%
-    dplyr::select(lat, long, .data$country_code) %>%
-    dplyr::mutate(country_code = toupper(.data$country_code),
-                  GID_0 = countrycode::countrycode(.data$country_code, "iso2c", "iso3c"))
+    message("Country identifiers are provided. Skipping geocoding...")
 
-  # Identify matched countries
-  matched_countries <- unique(results$GID_0)
+    if (format_countries != "iso3c") {
+
+      # Attempt to convert country identifiers to iso3c
+      original_countries <- countries  # Preserve the original input for reference
+
+      countries <- suppressWarnings(countrycode::countrycode(countries, origin = format_countries, destination = "iso3c"))
+
+      # Identify which countries could not be converted (i.e., resulted in NA)
+      failed_countries <- original_countries[is.na(countries)]
+
+      if (length(failed_countries) > 0) {
+        warning("The following country identifiers could not be converted to iso3c codes: ",
+                paste(shQuote(failed_countries), collapse = ", "),
+                ". Please double-check your country identifiers for accuracy or use iso3c codes directly.")
+      }
+
+    }
+
+    matched_countries <- unique(countries)
+
+    results <- coords_df # Simply assign the df with lat and long to results df
+
+  } else { # If not, perform reverse geocoding to get the country code
+    coords_df <- coords_df %>%
+      dplyr::select(.data$lat, .data$long) %>%
+      dplyr::distinct(.data$lat, .data$long)
+
+    results <- tidygeocoder::reverse_geocode(coords_df, lat = "lat", long = "long", method = "osm", full_results = TRUE) %>%
+      dplyr::select(lat, long, .data$country_code) %>%
+      dplyr::mutate(country_code = toupper(.data$country_code),
+                    GID_0 = countrycode::countrycode(.data$country_code, "iso2c", "iso3c"))
+
+    matched_countries <- unique(results$GID_0)
+  }
 
   # Load filtered geometries from .gpkg based on matched countries
   query_str <- paste0("SELECT * FROM gadm_geom WHERE GID_0 IN ('", paste(matched_countries, collapse="','"), "')")
