@@ -4,5 +4,5 @@ template:
   opengraph:
     twitter:
       creator: "@pablogguz_"
-      card: summary_large_image
+      card: summary
 
