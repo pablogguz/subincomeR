@@ -2,7 +2,9 @@ url: https://pablogguz.github.io/subincomeR/
 template:
   bootstrap: 5
   opengraph:
+    mage:
+      src: man/figures/card.png
     twitter:
       creator: "@pablogguz_"
-      card: summary
+      card: summary_large_image
 
