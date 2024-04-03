@@ -5,7 +5,7 @@
 
 # subincomeR <a href="https://pablogguz.github.io/subincomeR/"><img src="man/figures/logo.png" align="right" height="200" alt="subincomeR website" /></a>
 
-An R package to access [DOSE](https://www.nature.com/articles/s41597-023-02323-8), a global dataset of reported sub-national income data covering more than 1,600 sub-national regions across 83 countries over the period 1960-2020. Data is gather directly from the relevant governmental statistical agencies, yearbooks, and academic literature, and harmonised accordingly. 
+An R package to access [DOSE](https://www.nature.com/articles/s41597-023-02323-8), a global dataset of reported sub-national income data covering more than 1,600 sub-national regions across 83 countries over the period 1960-2020. Data is gathered directly from the relevant governmental statistical agencies, yearbooks, and academic literature, and harmonised accordingly. 
 
 ![](man/figures/map.png)
 
