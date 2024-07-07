@@ -1,3 +1,6 @@
+# subincomeR 0.1.2
+
+* Added the option to specify the path where the `.gpkg` file with the sub-national geometries would be stored
 
 # subincomeR 0.1.1
 
