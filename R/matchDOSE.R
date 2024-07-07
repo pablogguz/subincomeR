@@ -24,6 +24,7 @@
 #'        by 'format_countries'. This can significantly reduce processing time.
 #' @param format_countries Specifies the format of the country identifiers in 'countries'.
 #'        Options are "country.name" (default), "iso3c", and "iso2c". This parameter is ignored if 'countries' is NULL.
+#' @param gpkg_path Optional path to store the .gpkg file. If not specified, the default cache directory is used.
 #' @return A dataframe with input coordinates (and any additional input dataframe columns) and matched DOSE data.
 #' @import sf
 #' @importFrom dplyr filter left_join select mutate
@@ -52,7 +53,7 @@
 
 matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
                       long_col = "long", years = NULL, countries = NULL,
-                      format_countries = "iso3c") {
+                      format_countries = "iso3c", gpkg_path = NULL) {
 
   # Ensure necessary packages are loaded
   requireNamespace("sf", quietly = TRUE)
@@ -102,8 +103,13 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
   cache_dir <- rappdirs::user_cache_dir("subincomeR")
   dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
 
-  zip_path <- file.path(cache_dir, "gadm_geom.zip")
-  gpkg_path <- file.path(cache_dir, "gadm_geom.gpkg")
+  # If gpkg_path is provided, use it; otherwise, use the default cache directory
+  if (is.null(gpkg_path)) {
+    gpkg_path <- file.path(cache_dir, "gadm_geom.gpkg")
+  } else {
+    dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
+  }
+  zip_path <- file.path(dirname(gpkg_path), "gadm_geom.zip")
 
   # URL of the zipped geopackage file hosted online
   zip_url <- "https://www.dropbox.com/scl/fi/em780r55pmi7r44602npe/gadm_geom.zip?rlkey=f6w82ac5rmzm27se1hkcb5k7g&dl=1" # Update this URL

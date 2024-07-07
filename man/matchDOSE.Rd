@@ -12,7 +12,8 @@ matchDOSE(
   long_col = "long",
   years = NULL,
   countries = NULL,
-  format_countries = "iso3c"
+  format_countries = "iso3c",
+  gpkg_path = NULL
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ by 'format_countries'. This can significantly reduce processing time.}
 
 \item{format_countries}{Specifies the format of the country identifiers in 'countries'.
 Options are "country.name" (default), "iso3c", and "iso2c". This parameter is ignored if 'countries' is NULL.}
+
+\item{gpkg_path}{Optional path to store the .gpkg file. If not specified, the default cache directory is used.}
 }
 \value{
 A dataframe with input coordinates (and any additional input dataframe columns) and matched DOSE data.

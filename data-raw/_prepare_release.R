@@ -1,5 +1,8 @@
 
 
+# Load functions ----
+devtools::load_all()
+
 # Documentation ----
 devtools::document()
 
