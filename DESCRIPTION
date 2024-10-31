@@ -1,6 +1,6 @@
 Package: subincomeR
 Title: Coordinate-based Access to Global Sub-national Income Data in R
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Pablo", "Garcia-Guzman", email = "garciagp@ebrd.com", role = c("aut", "cre"))
 Description: Provides functionality to download, cache, and access the DOSE dataset from its repository in Zenodo.
@@ -9,7 +9,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports:
     sf,
     dplyr,

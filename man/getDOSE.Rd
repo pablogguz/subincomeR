@@ -24,7 +24,8 @@ A dataframe containing the filtered DOSE dataset based on the input parameters.
 \description{
 This function downloads the DOSE dataset from Zenodo and loads it into memory as a dataframe.
 It allows for optional filtering of the dataset based on specific years and/or countries.
-The country format can be specified to ensure correct filtering.
+The country format can be specified to ensure correct filtering. The function automatically
+handles different download methods based on system capabilities.
 }
 \examples{
 # Load the entire dataset

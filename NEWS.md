@@ -1,3 +1,8 @@
+# subincomeR 0.1.3
+
+* Updated DOSE dataset to version 2.9
+* Improved download handling to better manage corrupted downloads and connection issues
+
 # subincomeR 0.1.2
 
 * Added the option to specify the path where the `.gpkg` file with the sub-national geometries would be stored

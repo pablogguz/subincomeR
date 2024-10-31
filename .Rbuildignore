@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^data-raw$
+^dev$
 ^external-data$
 ^_pkgdown\.yml$
 ^docs$

@@ -50,7 +50,6 @@
 #' # Match coordinates and specify countries to skip country matching
 #' matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
 #'                                          countries = c("MEX", "GBR"), format_countries = "iso3c")
-
 matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
                       long_col = "long", years = NULL, countries = NULL,
                       format_countries = "iso3c", gpkg_path = NULL) {
@@ -79,7 +78,6 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
     }
 
     # Create a coordinates dataframe using specified column names
-
     coords_df <- df[, c(lat_col, long_col, setdiff(names(df), c(lat_col, long_col)))]
     names(coords_df)[1:2] <- c("lat", "long") # Standardize column names for internal use
 
@@ -112,23 +110,100 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
   zip_path <- file.path(dirname(gpkg_path), "gadm_geom.zip")
 
   # URL of the zipped geopackage file hosted online
-  zip_url <- "https://www.dropbox.com/scl/fi/em780r55pmi7r44602npe/gadm_geom.zip?rlkey=f6w82ac5rmzm27se1hkcb5k7g&dl=1" # Update this URL
+  zip_url <- "https://www.dropbox.com/scl/fi/em780r55pmi7r44602npe/gadm_geom.zip?rlkey=f6w82ac5rmzm27se1hkcb5k7g&dl=1"
 
-  # Download the zipped file if it's not already cached
-  if (!file.exists(zip_path)) {
-    message("Geometries not found in machine. Downloading GADM-DOSE geometries...")
-
-    # Use tryCatch to suppress warnings and show a progress bar
+  # Function to check if zip file is valid
+  is_valid_zip <- function(zip_path) {
     tryCatch({
-      #download.file(zip_url, zip_path, mode = "wb", quiet = TRUE, method = "auto", showProgress = TRUE)
-      curl::curl_download(url = zip_url, destfile = zip_path)
+      zip::zip_list(zip_path)
+      return(TRUE)
+    }, error = function(e) {
+      return(FALSE)
+    })
+  }
 
-      message("GADM-DOSE successfully downloaded and stored in ", cache_dir)
+  # Check if both zip and extracted file exist and are valid
+  if (!file.exists(gpkg_path)) {
+    need_download <- TRUE
+    
+    # Check if zip exists and is valid
+    if (file.exists(zip_path)) {
+      if (is_valid_zip(zip_path)) {
+        message("Found valid zip file, extracting...")
+        need_download <- FALSE
+      } else {
+        message("Found corrupted zip file, re-downloading...")
+        file.remove(zip_path)
+      }
+    }
+    
+    if (need_download) {
+      message("Geometries not found in machine. Downloading GADM-DOSE geometries...")
+      
+      # Create cache directory
+      dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      
+      download_success <- FALSE
+      
+      # First attempt: try curl
+      if (requireNamespace("curl", quietly = TRUE)) {
+        tryCatch({
+          curl::curl_download(url = zip_url, destfile = zip_path)
+          # Verify if the downloaded file is a valid zip
+          if (is_valid_zip(zip_path)) {
+            download_success <- TRUE
+            message("Download successful using curl")
+          } else {
+            message("curl download resulted in corrupted file, trying alternative method...")
+            file.remove(zip_path)
+          }
+        }, error = function(e) {
+          message("curl download failed, trying alternative method...")
+        })
+      }
+      
+      # Second attempt: try wininet (Windows) or default method
+      if (!download_success) {
+        tryCatch({
+          suppressWarnings({
+            if (.Platform$OS.type == "windows") {
+              download.file(zip_url, destfile = zip_path, mode = "wb", 
+                           method = "wininet", quiet = TRUE)
+            } else {
+              download.file(zip_url, destfile = zip_path, mode = "wb", 
+                           quiet = TRUE)
+            }
+          })
+          if (is_valid_zip(zip_path)) {
+            download_success <- TRUE
+            message("Download successful using alternative method")
+          } else {
+            stop("Downloaded file is corrupted")
+          }
+        }, error = function(e) {
+          stop("Failed to download the dataset. Error: ", e$message)
+        })
+      }
 
-    }, warning = function(w) {})
-
-    # Unzip without showing any unzip warnings/messages
-    suppressWarnings(unzip(zipfile = zip_path, exdir = cache_dir))
+      if (download_success) {
+        message("GADM-DOSE successfully downloaded and stored in ", cache_dir)
+      }
+    }
+    
+    # Unzip if needed
+    if (!file.exists(gpkg_path) && file.exists(zip_path) && is_valid_zip(zip_path)) {
+      message("Extracting files...")
+      # Unzip directly to the cache directory
+      suppressWarnings(unzip(zipfile = zip_path, exdir = dirname(gpkg_path)))
+      
+      # Verify the file exists after unzipping
+      if (!file.exists(gpkg_path)) {
+        # List files in the directory to help debug
+        message("Contents of cache directory after unzip: ", 
+                paste(list.files(dirname(gpkg_path)), collapse = ", "))
+        stop("Failed to extract gpkg file to the expected location: ", gpkg_path)
+      }
+    }
   }
 
   # If countries are provided, prepare the country codes
@@ -137,10 +212,8 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
     message("Country identifiers are provided. Skipping geocoding...")
 
     if (format_countries != "iso3c") {
-
       # Attempt to convert country identifiers to iso3c
       original_countries <- countries  # Preserve the original input for reference
-
       countries <- suppressWarnings(countrycode::countrycode(countries, origin = format_countries, destination = "iso3c"))
 
       # Identify which countries could not be converted (i.e., resulted in NA)
@@ -151,11 +224,9 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
                 paste(shQuote(failed_countries), collapse = ", "),
                 ". Please double-check your country identifiers for accuracy or use iso3c codes directly.")
       }
-
     }
 
     matched_countries <- unique(countries)
-
     results <- coords_df # Simply assign the df with lat and long to results df
 
   } else { # If not, perform reverse geocoding to get the country code
@@ -174,7 +245,7 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
   # Load filtered geometries from .gpkg based on matched countries
   query_str <- paste0("SELECT * FROM gadm_geom WHERE GID_0 IN ('", paste(matched_countries, collapse="','"), "')")
   dose_geom <- sf::st_read(gpkg_path, query = query_str, quiet = TRUE) %>%
-    dplyr::select(.data$GID_1, .data$geom)
+    dplyr::select("GID_1", "geom")
 
   # Extract GID_1 IDs from polygons
   coords_sf <- sf::st_as_sf(results, coords = c("long", "lat"), crs = sf::st_crs(dose_geom), remove = FALSE)
