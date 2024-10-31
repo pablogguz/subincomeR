@@ -7,10 +7,6 @@
 #* - GADM v3.6 dataset, downloaded from https://gadm.org/download_world36.html (layers version)
 #* - DOSE geopackage with custom geometries for non-GADM regions, downloaded from https://zenodo.org/records/7573249
 #*
-#* Output:
-#*
-#* - Some cute charts
-#*
 #* Code by Pablo Garcia Guzman
 #*******************************************************************************
 
