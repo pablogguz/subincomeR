@@ -53,7 +53,8 @@ data <- getDOSE() %>%
 # Match ----
 plot <- left_join(dose_geom, data) %>%
   rename(geometry = geom) %>%
-  mutate(grp_ppp = ifelse(grp_ppp>100000, 100000, grp_ppp)) %>%
+  mutate(grp_ppp = ifelse(grp_ppp>90000, 90000, grp_ppp)) %>%
+  mutate(grp_ppp = ifelse(grp_ppp<1000, 1000, grp_ppp)) %>%
   st_as_sf()
 
 # test <- plot %>%
@@ -64,18 +65,20 @@ plot <- left_join(dose_geom, data) %>%
 
 map <- ggplot(data = plot) +
   geom_sf(aes(fill = grp_ppp), color = "grey70", linewidth = .01) +
-  scale_fill_distiller(palette = "Blues", na.value = "lightgray",
-                       name = stringr::str_wrap("Regional GDP per capita (2015 int. $, thousands)", width = 50),
-                       guide = guide_colourbar(title.position = "top",
-                                               title.hjust = 0.5, barheight = 0.4,
-                                               barwidth = 12),
-                       direction = 1,
-                       trans = "log10", # Use a log scale
-                       breaks = c(1000, 5000, 10000, 20000, 50000, 100000), # Define specific breaks
-                       labels = c("1", "5", "10", "20", "50", "+100")) + # Custom labels
-  # labs(
-  #   caption = "@pablogguz_ | Source: DOSE"
-  # ) +
+  scale_fill_gradientn(
+    colors = c("#67001F", "#B2182B", "#D6604D", "#F4A582", "#92C5DE", "#4393C3", "#2166AC"),
+    na.value = "#eeeeee",
+    name = stringr::str_wrap("Regional GDP per capita (2015 int. $)", width = 50),
+    guide = guide_colourbar(
+      title.position = "top",
+      title.hjust = 0.5,
+      barheight = 0.4,
+      barwidth = 12
+    ),
+    trans = "log10",
+    breaks = c(1000, 3000, 10000, 30000, 90000),
+    labels = c("<$1k", "$3k", "$10k", "$30k", ">$90k") 
+  ) +
   theme_void() +
   theme(text = element_text(family = "Open Sans"),
         plot.title = element_text(hjust = 0.5),
