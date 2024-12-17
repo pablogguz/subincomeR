@@ -193,6 +193,17 @@ model_conditional <- feols(
   data = convergence_data,
   vcov = "hetero"
 )
+
+etable(
+  model, 
+  model_conditional,
+  title = "Regional Convergence Results",
+  headers = c("Absolute", "Conditional"),
+  se.below = TRUE,
+  keep = "log",
+  notes = "Heteroskedasticity-robust standard errors in parentheses."
+)
+
 ```
 
 The absolute convergence coefficient (-0.0137) captures both within and between-country convergence, while the conditional estimate (-0.0103) reflects only within-country convergence. Their comparison suggests that about 75% (25%) of convergence occurs within (between) countries. 
