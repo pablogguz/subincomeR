@@ -64,7 +64,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Use case: regional convergence</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/pablogguz/subincomeR/blob/v0.2.0/vignettes/regional-convergence.Rmd" class="external-link"><code>vignettes/regional-convergence.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/pablogguz/subincomeR/blob/main/vignettes/regional-convergence.Rmd" class="external-link"><code>vignettes/regional-convergence.Rmd</code></a></small>
       <div class="d-none name"><code>regional-convergence.Rmd</code></div>
     </div>
 
@@ -125,11 +125,10 @@ initial income levels for each region:</p>
 <span>    <span class="op">)</span> </span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="beta-convergence-analysis">
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>-convergence
-analysis<a class="anchor" aria-label="anchor" href="#beta-convergence-analysis"></a>
+<h2 id="unconditional-beta-convergence">Unconditional
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>-convergence<a class="anchor" aria-label="anchor" href="#unconditional-beta-convergence"></a>
 </h2>
-<p>We’ll test for absolute
+<p>We’ll test for unconditional
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>-convergence
 by regressing growth rates on logged initial income. Specifically, we’ll
 estimate the following model:</p>
@@ -279,7 +278,32 @@ in the convergence process:</p>
 <span>  <span class="va">growth_rate</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">initial_income</span><span class="op">)</span> <span class="op">|</span> <span class="va">country</span>, </span>
 <span>  data <span class="op">=</span> <span class="va">convergence_data</span>,</span>
 <span>  vcov <span class="op">=</span> <span class="st">"hetero"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://lrberge.github.io/fixest/reference/etable.html" class="external-link">etable</a></span><span class="op">(</span></span>
+<span>  <span class="va">model</span>, </span>
+<span>  <span class="va">model_conditional</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">"Regional Convergence Results"</span>,</span>
+<span>  headers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Absolute"</span>, <span class="st">"Conditional"</span><span class="op">)</span>,</span>
+<span>  se.below <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep <span class="op">=</span> <span class="st">"log"</span>,</span>
+<span>  notes <span class="op">=</span> <span class="st">"Heteroskedasticity-robust standard errors in parentheses."</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;                           model model_con..</span></span>
+<span><span class="co">#&gt;                        Absolute Conditional</span></span>
+<span><span class="co">#&gt; Dependent Var.:     growth_rate growth_rate</span></span>
+<span><span class="co">#&gt;                                            </span></span>
+<span><span class="co">#&gt; log(initial_income)  -0.0137***  -0.0103***</span></span>
+<span><span class="co">#&gt;                      (0.0005)    (0.0014)  </span></span>
+<span><span class="co">#&gt; Fixed-Effects:      ----------- -----------</span></span>
+<span><span class="co">#&gt; country                      No         Yes</span></span>
+<span><span class="co">#&gt; ___________________ ___________ ___________</span></span>
+<span><span class="co">#&gt; S.E. type           Heter.-rob. Heter.-rob.</span></span>
+<span><span class="co">#&gt; Observations                856         856</span></span>
+<span><span class="co">#&gt; R2                      0.42918     0.86468</span></span>
+<span><span class="co">#&gt; Within R2                    --     0.11418</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p>The absolute convergence coefficient (-0.0137) captures both within
 and between-country convergence, while the conditional estimate
 (-0.0103) reflects only within-country convergence. Their comparison
@@ -304,7 +328,7 @@ Scientific Data, 10(1), pp.1-12.</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Pablo Garcia-Guzman.</p>
+  <p>Developed by Pablo García Guzmán.</p>
 </div>
 
 <div class="pkgdown-footer-right">
