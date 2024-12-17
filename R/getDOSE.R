@@ -22,6 +22,7 @@
 #' @importFrom curl curl_download
 #' @export
 #' @examples
+#' \donttest{
 #' # Load the entire dataset
 #' data_all <- getDOSE()
 #'
@@ -33,6 +34,7 @@
 #'
 #' # Load dataset filtered by year and countries (using country names)
 #' data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), format_countries = 'country.name')
+#' }
 
 getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.name") {
 
@@ -40,6 +42,13 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
   requireNamespace("rappdirs", quietly = TRUE)
   requireNamespace("countrycode", quietly = TRUE)
   requireNamespace("dplyr", quietly = TRUE)
+
+  # Add validation for years parameter
+  if (!is.null(years)) {
+    if (!is.numeric(years)) {
+      stop("'years' must be numeric")
+    }
+  }
 
   # Validate format_countries input
   valid_formats <- c("iso2c", "iso3c", "country.name")
@@ -50,7 +59,7 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
   # Define cache directory and file path
   cache_dir <- rappdirs::user_cache_dir("subincomeR")
   dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-  file_path <- file.path(cache_dir, "DOSE_V2.csv")
+  file_path <- file.path(cache_dir, "DOSE_V2.9.csv")
 
   # Check if the DOSE dataset already exists in the cache
   if (!file.exists(file_path)) {

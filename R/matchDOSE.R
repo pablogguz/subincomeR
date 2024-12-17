@@ -37,6 +37,7 @@
 #' @importFrom curl curl_download
 #' @export
 #' @examples
+#' \donttest{
 #' # Match two pairs of coordinates to DOSE using vectors
 #' matched_data_vectors <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276))
 #'
@@ -50,6 +51,7 @@
 #' # Match coordinates and specify countries to skip country matching
 #' matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
 #'                                          countries = c("MEX", "GBR"), format_countries = "iso3c")
+#' }
 matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
                       long_col = "long", years = NULL, countries = NULL,
                       format_countries = "iso3c", gpkg_path = NULL) {
@@ -92,10 +94,9 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
   }
 
   # Ensure coordinates are unique in the coordinates df
-  coords_df <- coords_df %>%
-    dplyr::group_by(.data$lat, .data$long) %>%
-    dplyr::filter(dplyr::row_number()==1) %>%
-    dplyr::ungroup()
+  coords_df %>%
+    dplyr::select("lat", "long") %>%
+    dplyr::distinct("lat", "long")
 
   # Define the cache directory using rappdirs
   cache_dir <- rappdirs::user_cache_dir("subincomeR")
@@ -230,14 +231,33 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
     results <- coords_df # Simply assign the df with lat and long to results df
 
   } else { # If not, perform reverse geocoding to get the country code
-    coords_df <- coords_df %>%
-      dplyr::select(.data$lat, .data$long) %>%
-      dplyr::distinct(.data$lat, .data$long)
+    coords_df %>%
+      dplyr::select("lat", "long") %>%
+      dplyr::distinct("lat", "long")
 
-    results <- tidygeocoder::reverse_geocode(coords_df, lat = "lat", long = "long", method = "osm", full_results = TRUE) %>%
-      dplyr::select(lat, long, .data$country_code) %>%
-      dplyr::mutate(country_code = toupper(.data$country_code),
-                    GID_0 = countrycode::countrycode(.data$country_code, "iso2c", "iso3c"))
+    tryCatch({
+      results <- tidygeocoder::reverse_geocode(
+        coords_df, 
+        lat = "lat", 
+        long = "long", 
+        method = "osm", 
+        full_results = TRUE
+      ) %>%
+        dplyr::select("lat", "long", "country_code") %>%
+        dplyr::mutate(
+          country_code = toupper(.data$country_code),
+          GID_0 = countrycode::countrycode(.data$country_code, "iso2c", "iso3c")
+        )
+    }, error = function(e) {
+      stop(
+        "Failed to geocode coordinates. This could be due to:\n",
+        "1. No internet connection\n",
+        "2. OpenStreetMap service unavailable\n",
+        "3. Request timeout\n",
+        "Consider providing country codes directly using the 'countries' parameter.\n",
+        "Original error: ", e$message
+      )
+    })
 
     matched_countries <- unique(results$GID_0)
   }
@@ -255,7 +275,7 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
 
   # Load the DOSE dataset
   dose_data <- getDOSE() %>%
-    dplyr::select(-.data$GID_0)
+    dplyr::select(-"GID_0")
 
   # Filter DOSE dataset by year if provided
   if (!is.null(years)) {

@@ -28,6 +28,7 @@ The country format can be specified to ensure correct filtering. The function au
 handles different download methods based on system capabilities.
 }
 \examples{
+\donttest{
 # Load the entire dataset
 data_all <- getDOSE()
 
@@ -39,4 +40,5 @@ data_usa_can <- getDOSE(countries = c('USA', 'CAN'), format_countries = 'iso3c')
 
 # Load dataset filtered by year and countries (using country names)
 data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), format_countries = 'country.name')
+}
 }

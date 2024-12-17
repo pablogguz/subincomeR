@@ -56,6 +56,7 @@ unique input coordinates and matched DOSE data. Optionally, the function can fil
 Additionally, users can specify countries directly to skip the country matching step, potentially saving processing time.
 }
 \examples{
+\donttest{
 # Match two pairs of coordinates to DOSE using vectors
 matched_data_vectors <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276))
 
@@ -69,4 +70,5 @@ matched_data_2019 <- matchDOSE(lat = c(19.4326), long = c(-99.1332), years = 201
 # Match coordinates and specify countries to skip country matching
 matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
                                          countries = c("MEX", "GBR"), format_countries = "iso3c")
+}
 }

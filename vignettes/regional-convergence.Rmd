@@ -1,0 +1,203 @@
+---
+title: "Use case: regional convergence"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Use case: regional convergence}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Introduction
+
+This vignette demonstrates how to use the `subincomeR` package to analyze regional income convergence using the DOSE dataset. We'll explore both $\beta$-convergence (poorer regions growing faster than richer ones) and $\sigma$-convergence (reduction in income dispersion over time).
+
+## Loading required packages
+
+```{r}
+library(subincomeR)
+library(dplyr)
+library(ggplot2)
+library(extrafont)
+library(ggtext)
+library(fixest)
+library(countrycode)
+```
+
+## Getting the data
+
+First, let's load the DOSE dataset and prepare it for the analysis. We will use data from 2000 and 2019 to calculate growth rates and initial income levels for each region:
+
+```{r}
+# Load DOSE data
+data <- getDOSE(years = c(2000, 2019)) 
+
+# Calculate growth rates and initial income
+convergence_data <- data %>%
+    # filter missing values 
+    filter(!is.na(grp_pc_usd_2015)) %>%
+    # keep all regions with data for both years
+    group_by(GID_1) %>%
+    filter(n() == 2) %>%
+    arrange(year) %>%
+    summarize(
+        initial_pop = first(pop),
+        initial_income = first(grp_pc_usd_2015),
+        final_income = last(grp_pc_usd_2015),
+        growth_rate = (log(final_income) - log(initial_income)) / (max(year) - min(year)),
+        country = first(GID_0)
+    ) %>%
+    ungroup() %>%
+    # get continent
+    mutate(
+      continent = countrycode(country, origin = "iso3c", destination = "continent")
+    ) 
+```
+
+## $\beta$-convergence analysis
+
+We'll test for absolute $\beta$-convergence by regressing growth rates on logged initial income. Specifically, we'll estimate the following model:
+
+$$
+\frac{1}{T}\log\left(\frac{y_{i,t+T}}{y_{i,t}}\right) = \alpha + \beta\log(y_{i,t}) + \epsilon_{i}
+$$
+
+where $y_{i,t}$ is the income of region $i$ at time $t$, and $T$ is the length of the period. The left-hand side approximates the average annual growth rate. A negative estimate of $\beta$ indicates convergence, implying that poorer regions grow faster than richer ones. The speed of convergence can be recovered from the estimate of $\beta$.
+
+```{r}
+# Run convergence regression
+model <- feols(
+  growth_rate ~ log(initial_income), 
+  data = convergence_data,
+  vcov = "hetero"
+)
+
+# Create formatted coefficients for the plot subtitle
+model_stats <- summary(model)
+beta <- coef(model)["log(initial_income)"]
+pval <- model_stats$coeftable["log(initial_income)", "Pr(>|t|)"]
+```
+
+We can now plot the results:
+
+```{r}
+# Plot convergence regression ----
+
+## Theme ----
+theme_convergence <- function() {
+  theme_minimal() +
+    theme(
+      text = element_text(family = "Open Sans", size = 16),
+      plot.title = element_text(size = 18, margin = margin(b = 20)),
+      plot.subtitle = element_text(size = 14, color = "grey40"),
+      plot.caption = element_textbox_simple(
+        size = 12, 
+        color = "grey40", 
+        margin = margin(t = 20),
+        hjust = 0
+      ),
+      legend.position = "top",
+      legend.justification = "left",
+      panel.grid.minor = element_blank(),
+      panel.grid.major.x = element_blank(),
+      axis.title = element_text(size = 14)
+    )
+}
+
+continent_colors <- c(
+  "Africa" = "#E31C1C",       # Red
+  "Asia" = "#0066CC",         # Blue
+  "Europe" = "#4DAF4A",       # Green
+  "Americas" = "#984EA3",     # Purple
+  "Oceania" = "#FF7F00"       # Orange
+)
+
+## Plot ----
+ggplot(convergence_data, 
+       aes(x = log(initial_income), 
+           y = growth_rate * 100)) + 
+  geom_point(
+    aes(size = initial_pop,
+        color = continent),
+    alpha = 0.4
+  ) +
+  geom_smooth(
+    method = "lm",
+    color = "#0072B2",
+    linewidth = 1.5,
+    se = TRUE,
+    alpha = 0.5
+  ) +
+  annotate(
+    "text",
+    x = 10.5,
+    y = 7,
+    label = sprintf("β = %.3f\n(p = %.3f)", beta, pval),
+    hjust = 0,
+    size = 5,
+    family = "Open Sans"
+  ) +
+  scale_y_continuous(
+    labels = function(x) paste0(x, "%")
+  ) +
+  scale_size_continuous(
+    range = c(1, 8),
+    guide = "none"
+  ) +
+  scale_color_manual(
+    values = continent_colors,
+    name = NULL
+  ) +
+  labs(
+    title = "Regional Income Convergence, 2000-2019",
+    x = "Log Initial Income (2000)",
+    y = "Average Annual Growth Rate",
+    caption = "**Data** DOSE dataset | **Plot** @pablogguz_"
+  ) +
+  theme_convergence() +
+  theme(
+    legend.position = "top",
+    legend.direction = "horizontal",
+    legend.justification = "left",
+    legend.key.size = unit(1, "lines"),   
+    legend.margin = margin(t = 0, b = 0)
+  ) +
+  guides(
+    color = guide_legend(override.aes = list(size = 4)) 
+  )
+```
+
+The coefficient on initial income is negative and highly significant, indicating that poorer regions have grown faster than richer ones over the period of study. The magnitude of the coefficient provides an estimate of the speed of convergence: in this case, the coefficient suggests that the income gap between regions is closing at a rate of 1.4% per year.
+
+## Conditional $\beta$-convergence
+
+We now estimate conditional convergence by including country fixed effects:
+
+$$
+\frac{1}{T}\log\left(\frac{y_{i,t+T}}{y_{i,t}}\right) = \alpha_c + \beta\log(y_{i,t}) + \epsilon_{i}
+$$
+
+where $\alpha_c$ represents country-specific effects that control for differences in steady states across countries. The resulting estimate of $\beta$ is the speed of convergence within countries. We can compare this estimate to the previous one to assess the role of country fixed effects in the convergence process:
+
+```{r}
+model_conditional <- feols(
+  growth_rate ~ log(initial_income) | country, 
+  data = convergence_data,
+  vcov = "hetero"
+)
+```
+
+The absolute convergence coefficient (-0.0137) captures both within and between-country convergence, while the conditional estimate (-0.0103) reflects only within-country convergence. Their comparison suggests that about 75% (25%) of convergence occurs within (between) countries. 
+
+## References
+
+- Barro, R.J. and Sala-i-Martin, X., 1992. Convergence. Journal of Political Economy, 100(2), pp.223-251.
+- Wenz, L., Carr, R.D., Koegel, N., Kotz, M., and Kalkuhl, M., 2023. DOSE – Global data set of reported sub-national economic output. Nature Scientific Data, 10(1), pp.1-12.
