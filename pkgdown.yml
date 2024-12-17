@@ -1,8 +1,9 @@
 pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2024-12-16T19:09Z
+articles:
+  regional-convergence: regional-convergence.html
+last_built: 2024-12-17T13:40Z
 urls:
   reference: https://pablogguz.github.io/subincomeR/reference
   article: https://pablogguz.github.io/subincomeR/articles
