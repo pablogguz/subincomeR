@@ -62,9 +62,9 @@ convergence_data <- data %>%
     ) 
 ```
 
-## $\beta$-convergence analysis
+## Unconditional $\beta$-convergence
 
-We'll test for absolute $\beta$-convergence by regressing growth rates on logged initial income. Specifically, we'll estimate the following model:
+We'll test for unconditional $\beta$-convergence by regressing growth rates on logged initial income. Specifically, we'll estimate the following model:
 
 $$
 \frac{1}{T}\log\left(\frac{y_{i,t+T}}{y_{i,t}}\right) = \alpha + \beta\log(y_{i,t}) + \epsilon_{i}
