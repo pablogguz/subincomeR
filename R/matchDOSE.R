@@ -284,7 +284,6 @@ matchDOSE <- function(lat = NULL, long = NULL, df = NULL, lat_col = "lat",
       dplyr::filter(.data$year %in% years)
   }
 
-  # Assume 'GID_1' is the common key; adjust as necessary
   final_data <- left_join(matched_data, dose_data, by = "GID_1")
 
   return(as.data.frame(final_data))
