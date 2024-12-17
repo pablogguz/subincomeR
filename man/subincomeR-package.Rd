@@ -20,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Pablo Garcia-Guzman \email{garciagp@ebrd.com} [copyright holder]
+\strong{Maintainer}: Pablo García Guzmán \email{garciagp@ebrd.com} [copyright holder]
 
 }
 \keyword{internal}
