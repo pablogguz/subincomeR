@@ -2,7 +2,7 @@ Package: subincomeR
 Title: Access to Global Sub-national Income Data
 Version: 0.2.0
 Authors@R: 
-    person("Pablo", "Garcia-Guzman", , "garciagp@ebrd.com", role = c("aut", "cre", "cph"))
+    person("Pablo", "García Guzmán", , "garciagp@ebrd.com", role = c("aut", "cre", "cph"))
 Description: Provides access to granular sub-national income data from the
     MCC-PIK Database Of Sub-national Economic Output (DOSE). The package
     downloads and processes the data from its open repository on Zenodo
