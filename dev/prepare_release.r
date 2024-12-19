@@ -22,11 +22,15 @@ devtools::document()
 #devtools::build_manual()
 
 # Tests ----
-devtools::test(filter = "getDOSE_geom")
-#devtools::test(filter = "matchDOSE")
+devtools::test()
+# devtools::test(filter = "getDOSE")
+# devtools::test(filter = "matchDOSE")
 
 # Checks ----
 devtools::check()
+
+# Examples
+devtools::run_examples(run_donttest = TRUE)
 
 # Vignettes
 devtools::build_vignettes()

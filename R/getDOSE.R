@@ -13,8 +13,9 @@
 #' @param format_countries The format of the countries provided in the countries parameter.
 #'        Acceptable values are 'iso2c', 'iso3c', or 'country.name'. Default is 'country.name'.
 #'        This parameter is used only if the countries parameter is not NULL.
+#' @param path Optional character string specifying where to store the downloaded data.
+#'        If NULL (default), uses tempdir().
 #' @return A dataframe containing the filtered DOSE dataset based on the input parameters.
-#' @importFrom rappdirs user_cache_dir
 #' @importFrom dplyr filter
 #' @importFrom countrycode countrycode
 #' @importFrom utils download.file read.csv
@@ -33,13 +34,13 @@
 #' data_usa_can <- getDOSE(countries = c('USA', 'CAN'), format_countries = 'iso3c')
 #'
 #' # Load dataset filtered by year and countries (using country names)
-#' data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), format_countries = 'country.name')
+#' data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), 
+#'                          format_countries = 'country.name')
 #' }
 
-getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.name") {
-
+getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.name",
+                   path = NULL) {
   # Load required packages
-  requireNamespace("rappdirs", quietly = TRUE)
   requireNamespace("countrycode", quietly = TRUE)
   requireNamespace("dplyr", quietly = TRUE)
 
@@ -56,18 +57,26 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
     stop("Invalid format_countries value. Please use one of: 'iso2c', 'iso3c', or 'country.name'.")
   }
 
-  # Define cache directory and file path
-  cache_dir <- rappdirs::user_cache_dir("subincomeR")
-  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
-  file_path <- file.path(cache_dir, "DOSE_V2.9.csv")
+  # Validate and set up storage directory
+  if (is.null(path)) {
+    storage_dir <- tempdir()
+  } else {
+    if (!is.character(path) || length(path) != 1) {
+      stop("'path' must be a single character string")
+    }
+    storage_dir <- path
+    dir.create(storage_dir, recursive = TRUE, showWarnings = FALSE)
+  }
 
-  # Check if the DOSE dataset already exists in the cache
+  # Define file path
+  file_path <- file.path(storage_dir, "DOSE_V2.9.csv")
+
+  # Check if the DOSE dataset already exists
   if (!file.exists(file_path)) {
     # If not, download and save it
-    message("DOSE dataset not found on machine. Downloading...")
+    message("DOSE dataset not found. Downloading...")
     zip_url <- "https://zenodo.org/records/13773040/files/DOSE_V2.9.csv?download=1"
 
-    # Try curl first, then fall back to wininet if needed
     download_success <- FALSE
     
     # First attempt: try curl
@@ -101,11 +110,11 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
     }
 
     if (download_success) {
-      message("DOSE dataset successfully downloaded and stored in ", cache_dir)
+      message("DOSE dataset successfully downloaded and stored in ", storage_dir)
     }
   }
 
-  # Read the dataset from the cache
+  # Read the dataset
   message("Loading DOSE dataset...")
   dose_data <- read.csv(file_path, stringsAsFactors = FALSE)
 

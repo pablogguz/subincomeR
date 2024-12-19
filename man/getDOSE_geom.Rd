@@ -4,32 +4,39 @@
 \alias{getDOSE_geom}
 \title{Download and load GADM-DOSE geometries}
 \usage{
-getDOSE_geom(gpkg_path = NULL, countries = NULL)
+getDOSE_geom(path = NULL, countries = NULL, download = FALSE)
 }
 \arguments{
-\item{gpkg_path}{Optional path to store the .gpkg file. If not specified,
-the default cache directory is used.}
+\item{path}{Optional character string specifying where to store the files.
+If NULL (default), uses tempdir().}
 
 \item{countries}{Optional vector of ISO3C country codes to filter geometries.
 If NULL (default), all available geometries are returned.}
+
+\item{download}{Logical indicating whether to download without confirmation.
+Default is FALSE, which will prompt for confirmation in interactive sessions.
+Set to TRUE to skip confirmation.}
 }
 \value{
 An sf object containing the GADM-DOSE geometries
 }
 \description{
 This function downloads and loads GADM-DOSE geometries from a remote source.
-The geometries are cached locally for future use. Users can specify a custom
-path for storage or use the default cache directory.
+The geometries are stored in a temporary directory by default, or in a user-specified
+location if provided. The uncompressed geometries file is approximately 769 MB.
 }
 \examples{
 \donttest{
-# Load all geometries using default cache location
+# Load all geometries with download confirmation
 geom_all <- getDOSE_geom()
 
-# Load geometries for specific countries
-geom_subset <- getDOSE_geom(countries = c("USA", "CAN", "MEX"))
+# Load geometries with automatic download
+geom_auto <- getDOSE_geom(download = TRUE)
 
-# Load geometries with custom storage location
-geom_custom <- getDOSE_geom(gpkg_path = "~/my_data/gadm_geom.gpkg")
+# Load geometries for specific countries
+geom_subset <- getDOSE_geom(
+  countries = c("USA", "CAN", "MEX"),
+  download = TRUE
+)
 }
 }

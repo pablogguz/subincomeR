@@ -13,7 +13,8 @@ matchDOSE(
   years = NULL,
   countries = NULL,
   format_countries = "iso3c",
-  gpkg_path = NULL
+  path = NULL,
+  download = FALSE
 )
 }
 \arguments{
@@ -35,13 +36,17 @@ Defaults to "long".}
 If NULL (the default), a 1:m matching is performed and data for all years are returned.}
 
 \item{countries}{Optional vector or dataframe column name of country identifiers.
-If provided, the function skips the country matching step. The identifiers can be in the format specified
-by 'format_countries'. This can significantly reduce processing time.}
+If provided, the function skips the country matching step. Can significantly reduce processing time.}
 
 \item{format_countries}{Specifies the format of the country identifiers in 'countries'.
 Options are "country.name" (default), "iso3c", and "iso2c". This parameter is ignored if 'countries' is NULL.}
 
-\item{gpkg_path}{Optional path to store the .gpkg file. If not specified, the default cache directory is used.}
+\item{path}{Optional character string specifying where to store downloaded files.
+If NULL (default), uses tempdir().}
+
+\item{download}{Logical indicating whether to download without confirmation.
+Default is FALSE, which will prompt for confirmation in interactive sessions.
+Set to TRUE to skip confirmation.}
 }
 \value{
 A dataframe with input coordinates (and any additional input dataframe columns) and matched DOSE data.
@@ -50,25 +55,33 @@ A dataframe with input coordinates (and any additional input dataframe columns) 
 This function matches input coordinates (latitude and longitude) to the DOSE dataset.
 It accepts either vectors of latitudes and longitudes or a dataframe containing
 these coordinates. Before matching, it ensures that only unique coordinates are processed
-to avoid duplicating operations on identical coordinates. It downloads the GADM-1 geometries
-from a specified URL if not already cached locally, unzips it, and returns a dataframe with
-unique input coordinates and matched DOSE data. Optionally, the function can filter the DOSE dataset by specific years.
-Additionally, users can specify countries directly to skip the country matching step, potentially saving processing time.
+to avoid duplicating operations on identical coordinates. It uses GADM-1 geometries
+to match coordinates to regions and returns a dataframe with unique input coordinates
+and matched DOSE data.
 }
 \examples{
 \donttest{
-# Match two pairs of coordinates to DOSE using vectors
-matched_data_vectors <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276))
+# Match coordinates using vectors
+matched_data <- matchDOSE(lat = c(19.4326, 51.5074), 
+                         long = c(-99.1332, -0.1276))
 
-# Match two pairs of coordinates to DOSE using a dataframe
-df <- data.frame(ID = 1:2, latitude = c(19.4326, 51.5074), longitude = c(-99.1332, -0.1276))
-matched_data_df <- matchDOSE(df = df, lat_col = "latitude", long_col = "longitude")
+# Match coordinates using a dataframe
+df <- data.frame(ID = 1:2, 
+                 latitude = c(19.4326, 51.5074), 
+                 longitude = c(-99.1332, -0.1276))
+matched_data_df <- matchDOSE(df = df, 
+                            lat_col = "latitude", 
+                            long_col = "longitude")
 
-# Match coordinates to DOSE for a specific year using vectors
-matched_data_2019 <- matchDOSE(lat = c(19.4326), long = c(-99.1332), years = 2019)
+# Match coordinates for a specific year
+matched_data_2019 <- matchDOSE(lat = c(19.4326), 
+                               long = c(-99.1332), 
+                               years = 2019)
 
-# Match coordinates and specify countries to skip country matching
-matched_data_with_countries <- matchDOSE(lat = c(19.4326, 51.5074), long = c(-99.1332, -0.1276),
-                                         countries = c("MEX", "GBR"), format_countries = "iso3c")
+# Match coordinates with known countries
+matched_data_countries <- matchDOSE(lat = c(19.4326, 51.5074),
+                                   long = c(-99.1332, -0.1276),
+                                   countries = c("MEX", "GBR"),
+                                   format_countries = "iso3c")
 }
 }

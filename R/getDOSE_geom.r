@@ -1,36 +1,40 @@
 #' Download and load GADM-DOSE geometries
 #'
 #' This function downloads and loads GADM-DOSE geometries from a remote source.
-#' The geometries are cached locally for future use. Users can specify a custom
-#' path for storage or use the default cache directory.
+#' The geometries are stored in a temporary directory by default, or in a user-specified
+#' location if provided. The uncompressed geometries file is approximately 769 MB.
 #'
-#' @param gpkg_path Optional path to store the .gpkg file. If not specified,
-#'        the default cache directory is used.
+#' @param path Optional character string specifying where to store the files.
+#'        If NULL (default), uses tempdir().
 #' @param countries Optional vector of ISO3C country codes to filter geometries.
 #'        If NULL (default), all available geometries are returned.
+#' @param download Logical indicating whether to download without confirmation.
+#'        Default is FALSE, which will prompt for confirmation in interactive sessions.
+#'        Set to TRUE to skip confirmation.
 #' @return An sf object containing the GADM-DOSE geometries
-#' @importFrom rappdirs user_cache_dir
 #' @importFrom sf st_read
 #' @importFrom zip unzip
-#' @importFrom utils download.file
+#' @importFrom utils download.file menu
 #' @importFrom curl curl_download
 #' @export
 #' @examples
 #' \donttest{
-#' # Load all geometries using default cache location
+#' # Load all geometries with download confirmation
 #' geom_all <- getDOSE_geom()
 #'
-#' # Load geometries for specific countries
-#' geom_subset <- getDOSE_geom(countries = c("USA", "CAN", "MEX"))
+#' # Load geometries with automatic download
+#' geom_auto <- getDOSE_geom(download = TRUE)
 #'
-#' # Load geometries with custom storage location
-#' geom_custom <- getDOSE_geom(gpkg_path = "~/my_data/gadm_geom.gpkg")
+#' # Load geometries for specific countries
+#' geom_subset <- getDOSE_geom(
+#'   countries = c("USA", "CAN", "MEX"),
+#'   download = TRUE
+#' )
 #' }
-getDOSE_geom <- function(gpkg_path = NULL, countries = NULL) {
+getDOSE_geom <- function(path = NULL, countries = NULL, download = FALSE) {
   # Load required packages
   requireNamespace("sf", quietly = TRUE)
   requireNamespace("zip", quietly = TRUE)
-  requireNamespace("rappdirs", quietly = TRUE)
   requireNamespace("curl", quietly = TRUE)
 
   # Input validation
@@ -38,24 +42,20 @@ getDOSE_geom <- function(gpkg_path = NULL, countries = NULL) {
     stop("'countries' must be a character vector of country codes")
   }
   
-  if (!is.null(gpkg_path)) {
-    if (!is.character(gpkg_path) || nchar(gpkg_path) == 0) {
-      stop("gpkg_path must be a valid file path")
+  # Validate and set up storage directory
+  if (is.null(path)) {
+    storage_dir <- tempdir()
+  } else {
+    if (!is.character(path) || length(path) != 1) {
+      stop("'path' must be a single character string")
     }
-    # Ensure directory exists
-    dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
+    storage_dir <- path
+    dir.create(storage_dir, recursive = TRUE, showWarnings = FALSE)
   }
 
-  # Define cache directory using rappdirs
-  cache_dir <- rappdirs::user_cache_dir("subincomeR")
-  
-  # If gpkg_path is provided, use it; otherwise, use default cache directory
-  if (is.null(gpkg_path)) {
-    gpkg_path <- file.path(cache_dir, "gadm_geom.gpkg")
-  } else {
-    dir.create(dirname(gpkg_path), recursive = TRUE, showWarnings = FALSE)
-  }
-  zip_path <- file.path(dirname(gpkg_path), "gadm_geom.zip")
+  # Define file paths
+  gpkg_path <- file.path(storage_dir, "gadm_geom.gpkg")
+  zip_path <- file.path(storage_dir, "gadm_geom.zip")
 
   # URL of the zipped geopackage file
   zip_url <- "https://www.dropbox.com/scl/fi/em780r55pmi7r44602npe/gadm_geom.zip?rlkey=f6w82ac5rmzm27se1hkcb5k7g&dl=1"
@@ -86,10 +86,16 @@ getDOSE_geom <- function(gpkg_path = NULL, countries = NULL) {
     }
     
     if (need_download) {
-      message("Geometries not found in machine. Downloading GADM-DOSE geometries...")
+      message("\nThe GADM-DOSE geometries file is approximately 769 MB when uncompressed.")
       
-      # Create cache directory
-      dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+      if (!download && interactive()) {
+        proceed <- utils::menu(c("Yes", "No"), title="Would you like to proceed with the download?")
+        if (proceed != 1) {
+          stop("Download cancelled by user.")
+        }
+      }
+      
+      message("\nDownloading GADM-DOSE geometries...")
       
       download_success <- FALSE
       
@@ -132,22 +138,21 @@ getDOSE_geom <- function(gpkg_path = NULL, countries = NULL) {
           stop("Failed to download the dataset. Error: ", e$message)
         })
       }
-
-      if (download_success) {
-        message("GADM-DOSE geometries successfully downloaded and stored in ", cache_dir)
-      }
     }
     
     # Unzip if needed
     if (!file.exists(gpkg_path) && file.exists(zip_path) && is_valid_zip(zip_path)) {
       message("Extracting files...")
-      # Unzip directly to the cache directory
-      suppressWarnings(unzip(zipfile = zip_path, exdir = dirname(gpkg_path)))
+      # Unzip to the storage directory
+      suppressWarnings(unzip(zipfile = zip_path, exdir = storage_dir))
       
       # Verify the file exists after unzipping
       if (!file.exists(gpkg_path)) {
         stop("Failed to extract gpkg file to the expected location: ", gpkg_path)
       }
+
+      # Clean up zip file after successful extraction
+      unlink(zip_path)
     }
   }
 
@@ -159,6 +164,11 @@ getDOSE_geom <- function(gpkg_path = NULL, countries = NULL) {
     query_str <- "SELECT * FROM gadm_geom"
   }
 
-  # Load and return geometries
-  sf::st_read(gpkg_path, query = query_str, quiet = TRUE)
+  # Load geometries
+  result <- sf::st_read(gpkg_path, query = query_str, quiet = TRUE)
+  
+  # Display storage location
+  message(sprintf("\nGeometries saved in %s", storage_dir))
+  
+  return(result)
 }

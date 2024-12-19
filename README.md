@@ -1,6 +1,9 @@
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/pablogguz/subincomeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pablogguz/subincomeR/actions/workflows/R-CMD-check.yaml) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://shields.io/)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN status](https://www.r-pkg.org/badges/version/subincomeR)](https://CRAN.R-project.org/package=subincomeR)
+[![Downloads](https://cranlogs.r-pkg.org/badges/grand-total/subincomeR)](https://cran.r-project.org/package=subincomeR)
+[![R-CMD-check](https://github.com/pablogguz/subincomeR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pablogguz/subincomeR/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 # subincomeR <a href="https://pablogguz.github.io/subincomeR/"><img src="man/figures/logo.png" align="right" height="200" alt="subincomeR website" /></a>
@@ -17,7 +20,15 @@ DOSE provides data at the first administrative level (GADM-1), which includes su
 
 ## Installation 
 
+You can install the released version of `subincomeR` from CRAN with:
+
+``` r
+install.packages("subincomeR")
 ```
+
+Alternatively, you can install the development version from [GitHub](https://github.com/) with:
+
+``` r
 # install.packages("pak")
 pak::pak("pablogguz/subincomeR")
 ```

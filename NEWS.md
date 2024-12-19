@@ -1,3 +1,9 @@
+# subincomeR 0.2.2
+
+# subincomeR 0.2.1
+
+* Fixed minor style issues in DESCRIPTION file
+
 # subincomeR 0.2.0
 
 * Added the `getDOSE_geom()` function to explicitly download the geometries of the sub-national regions

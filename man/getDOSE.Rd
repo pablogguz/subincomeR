@@ -4,7 +4,12 @@
 \alias{getDOSE}
 \title{Download and load the DOSE dataset into memory}
 \usage{
-getDOSE(years = NULL, countries = NULL, format_countries = "country.name")
+getDOSE(
+  years = NULL,
+  countries = NULL,
+  format_countries = "country.name",
+  path = NULL
+)
 }
 \arguments{
 \item{years}{Optional vector of years for which to filter the DOSE dataset.
@@ -17,6 +22,9 @@ Use the format_countries parameter to specify the format of the countries vector
 \item{format_countries}{The format of the countries provided in the countries parameter.
 Acceptable values are 'iso2c', 'iso3c', or 'country.name'. Default is 'country.name'.
 This parameter is used only if the countries parameter is not NULL.}
+
+\item{path}{Optional character string specifying where to store the downloaded data.
+If NULL (default), uses tempdir().}
 }
 \value{
 A dataframe containing the filtered DOSE dataset based on the input parameters.
@@ -39,6 +47,7 @@ data_2018_2019 <- getDOSE(years = c(2018, 2019))
 data_usa_can <- getDOSE(countries = c('USA', 'CAN'), format_countries = 'iso3c')
 
 # Load dataset filtered by year and countries (using country names)
-data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), format_countries = 'country.name')
+data_mex_2019 <- getDOSE(years = 2019, countries = c('Mexico'), 
+                         format_countries = 'country.name')
 }
 }

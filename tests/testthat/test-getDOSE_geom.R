@@ -1,82 +1,57 @@
 # tests/testthat/test-getDOSE_geom.R
 
-# Helper function to clear cache for testing
-clear_cache <- function() {
-  cache_dir <- rappdirs::user_cache_dir("subincomeR")
-  if (dir.exists(cache_dir)) {
-    unlink(cache_dir, recursive = TRUE)
-  }
+# Helper function to create test directory
+create_test_dir <- function() {
+  file.path(tempdir(), "subincomeR_test")
 }
 
-# Helper function to create mock coordinates
-create_test_coords <- function() {
-  list(
-    lat = c(19.4326, 51.5074),
-    long = c(-99.1332, -0.1276)
-  )
-}
-
-test_that("getDOSE_geom downloads and loads geometries correctly", {
+test_that("getDOSE_geom handles basic functionality correctly", {
   skip_on_cran()
-  # Test basic functionality
-  geom <- getDOSE_geom()
+  
+  # Test basic functionality with default tempdir
+  geom <- getDOSE_geom(download = TRUE)
   expect_s3_class(geom, "sf")
   expect_true(nrow(geom) > 0)
+  expect_true(all(c("GID_0", "GID_1", "geom") %in% names(geom)))
+  
+  # Test file reuse
+  geom2 <- getDOSE_geom(download = TRUE)
+  expect_identical(geom, geom2)
+})
+
+test_that("getDOSE_geom handles custom paths and directory creation", {
+  skip_on_cran()
+  # Create a test directory path (but don't create the directory)
+  test_dir <- file.path(tempdir(), "new_test_dir")
+  
+  # Function should create directory and work properly
+  geom <- getDOSE_geom(path = test_dir, download = TRUE)
+  expect_true(dir.exists(test_dir))
+  expect_s3_class(geom, "sf")
+  
+  # Clean up
+  unlink(test_dir, recursive = TRUE)
 })
 
 test_that("getDOSE_geom filters countries correctly", {
   skip_on_cran()
+  
   countries <- c("USA", "CAN")
-  geom <- getDOSE_geom(countries = countries)
+  geom <- getDOSE_geom(countries = countries, download = TRUE)
   unique_countries <- unique(geom$GID_0)
   expect_true(all(unique_countries %in% countries))
 })
 
-test_that("getDOSE_geom handles custom paths correctly", {
-  # Set up test environment
-  temp_dir <- file.path(tempdir(), "subincomeR_test")
-  dir.create(temp_dir, recursive = TRUE, showWarnings = FALSE)
-  temp_gpkg <- file.path(temp_dir, "test.gpkg")
-  
-  # Create mock sf object
-  mock_sf <- data.frame(
-    GID_1 = c("USA.1", "USA.2"),
-    geom = c("POLYGON((...))", "POLYGON((...))"),
-    stringsAsFactors = FALSE
-  )
-  class(mock_sf) <- c("sf", "data.frame")
-  
-  # Local mock functions
-  mock_read <- function(...) mock_sf
-  
-  # Use local mocking
-  local_mocked_bindings(
-    st_read = mock_read,
-    .package = "sf"
-  )
-  
-  # Create an empty gpkg file to satisfy file existence check
-  file.create(temp_gpkg)
-  
-  # Run test
-  result <- getDOSE_geom(gpkg_path = temp_gpkg)
-  
-  # Test expectations
-  expect_s3_class(result, "sf")
-  expect_true(file.exists(temp_gpkg))
-  
-  # Clean up
-  unlink(temp_dir, recursive = TRUE)
-})
-
 test_that("getDOSE_geom handles invalid inputs gracefully", {
-  expect_error(
-    getDOSE_geom(countries = 123),
-    "'countries' must be a character vector"
-  )
+  # Test invalid countries parameter
+  expect_error(getDOSE_geom(countries = 123, download = TRUE),
+               "'countries' must be a character vector")
   
-  expect_error(
-    getDOSE_geom(gpkg_path = ""),
-    "gpkg_path must be a valid file path"
-  )
+  # Test invalid path parameter
+  expect_error(getDOSE_geom(path = 123),
+               "'path' must be a single character string")
+  expect_error(getDOSE_geom(path = character(0)),
+               "'path' must be a single character string")
+  expect_error(getDOSE_geom(path = c("path1", "path2")),
+               "'path' must be a single character string")
 })
