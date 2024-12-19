@@ -1,5 +1,9 @@
 # subincomeR 0.2.2
 
+* Removed writing to user's home filespace by default (using tempdir() instead)
+* Added explicit path parameter througout to allow users to specify custom storage locations
+* Added download confirmation for large files with option to skip in non-interactive sessions
+
 # subincomeR 0.2.1
 
 * Fixed minor style issues in DESCRIPTION file
