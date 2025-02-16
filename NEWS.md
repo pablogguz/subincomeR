@@ -1,3 +1,7 @@
+# subincomeR 0.3.0
+
+* Updated DOSE dataset to version 2.10
+
 # subincomeR 0.2.2
 
 * Removed writing to user's home filespace by default (using tempdir() instead)

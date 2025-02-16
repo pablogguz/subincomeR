@@ -1,9 +1,7 @@
-## subincome R 0.2.2
+## subincome R 0.3.0
 
-This is a resubmission. In this version I have:
-* Removed writing to user's home filespace by default (using tempdir() instead)
-* Added explicit path parameter througout to allow users to specify custom storage locations
-* Added download confirmation for large files with option to skip in non-interactive sessions
+In this version I have:
+* Updated the link to the DOSE dataset repository to reflect the new version 2.10
 
 ## Test environments 
 * local Windows 10 install, R 4.3.1

@@ -69,13 +69,13 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
   }
 
   # Define file path
-  file_path <- file.path(storage_dir, "DOSE_V2.9.csv")
+  file_path <- file.path(storage_dir, "DOSE_V2.10.csv")
 
   # Check if the DOSE dataset already exists
   if (!file.exists(file_path)) {
     # If not, download and save it
     message("DOSE dataset not found. Downloading...")
-    zip_url <- "https://zenodo.org/records/13773040/files/DOSE_V2.9.csv?download=1"
+    zip_url <- "https://zenodo.org/records/14536105/files/DOSE_V2.10.csv?download=1"
 
     download_success <- FALSE
     

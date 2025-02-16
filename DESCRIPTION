@@ -1,6 +1,6 @@
 Package: subincomeR
 Title: Access to Global Sub-National Income Data
-Version: 0.2.2.9000
+Version: 0.3.0
 Authors@R: 
     person("Pablo", "García Guzmán", , "garciagp@ebrd.com", role = c("aut", "cre", "cph"))
 Description: Provides access to granular sub-national income data from the
