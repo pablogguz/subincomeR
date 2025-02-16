@@ -5,7 +5,7 @@ In this version I have:
 
 ## Test environments 
 * local Windows 10 install, R 4.3.1
-* win-builder (devel and release)
+* win-builder (devel)
 * mac-builder (release)
 * GitHub Actions:
   * windows-latest (devel, release, oldrel-1)
@@ -14,18 +14,7 @@ In this version I have:
 
 ## R CMD check results
 
-### local, mac-builder and GitHub Actions:
-
 0 errors | 0 warnings | 0 notes
-
-### win-builder:
-
-0 errors | 0 warnings | 1 note
-
-checking CRAN incoming feasibility ... NOTE
-NOTE Maintainer: 'Pablo García Guzmán <garciagp@ebrd.com>'
-
-New submission
 
 ## Downstream dependencies
 There are currently no downstream dependencies for this package.
