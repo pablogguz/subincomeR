@@ -41,13 +41,18 @@ gpkg_path <- file.path(cache_dir, "gadm_geom.gpkg")
 dose_geom <- sf::st_read(gpkg_path)
 
 # Load DOSE data ----
+
+# check latest year by country 
+# getDOSE() %>%
+#   group_by(GID_0) %>%
+#   summarise(max_year = max(year)) %>%
+#   arrange(desc(max_year)) %>%
+#   print(n=Inf)
+
 data <- getDOSE() %>%
-  mutate(grp_ppp = grp_pc_lcu_2015/PPP) %>% # generate variable for PPP regional GDP per capita
+  mutate(grp_ppp = grp_pc_lcu/PPP) %>% # generate variable for PPP regional GDP per capita
   filter(!is.na(grp_ppp)) %>%
-  group_by(GID_1) %>%
-  arrange(desc(year)) %>%
-  filter(row_number()==1) %>% # keep latest non-missing value for each region
-  ungroup() %>%
+  filter(year == 2015) %>% # filter data for 2015
   select(GID_1, year, grp_ppp)
 
 # Match ----
@@ -68,7 +73,7 @@ map <- ggplot(data = plot) +
   scale_fill_gradientn(
     colors = c("#67001F", "#B2182B", "#D6604D", "#F4A582", "#92C5DE", "#4393C3", "#2166AC"),
     na.value = "#eeeeee",
-    name = stringr::str_wrap("Regional GDP per capita (2015 int. $)", width = 50),
+    name = stringr::str_wrap("Regional GDP per capita, 2015 (int. $)", width = 50),
     guide = guide_colourbar(
       title.position = "top",
       title.hjust = 0.5,
