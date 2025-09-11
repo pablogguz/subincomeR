@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   regional-convergence: regional-convergence.html
-last_built: 2025-09-11T14:51Z
+last_built: 2025-09-11T15:25Z
 urls:
   reference: https://pablogguz.github.io/subincomeR/reference
   article: https://pablogguz.github.io/subincomeR/articles
