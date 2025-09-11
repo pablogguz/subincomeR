@@ -1,7 +1,8 @@
-## subincome R 0.3.0
+## subincome R 0.4.0
 
 In this version I have:
-* Updated the link to the DOSE dataset repository to reflect the new version 2.10
+* Updated the link to the DOSE dataset repository to reflect the new version 2.11
+* Removed the `extrafont` dependency which triggered an error
 
 ## Test environments 
 * local Windows 10 install, R 4.3.1

@@ -26,7 +26,6 @@ This vignette demonstrates how to use the `subincomeR` package to analyze region
 library(subincomeR)
 library(dplyr)
 library(ggplot2)
-library(extrafont)
 library(ggtext)
 library(fixest)
 library(countrycode)

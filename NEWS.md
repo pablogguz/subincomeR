@@ -1,3 +1,7 @@
+# subincomeR 0.4.0
+
+* Updated DOSE dataset to version 2.11
+
 # subincomeR 0.3.0
 
 * Updated DOSE dataset to version 2.10
