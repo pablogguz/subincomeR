@@ -1,3 +1,11 @@
+# subincomeR 0.5.0
+
+* Updated DOSE dataset to version 2.14 (Zenodo record 20035157)
+* Replaced the magrittr pipe (`%>%`) with the native R pipe (`|>`) in
+  package code, addressing the CRAN NOTE flagged after `sf` stopped
+  re-exporting `%>%` (see r-spatial/sf#2607)
+* Declared a minimum R version of 4.1.0 (required by the native pipe)
+
 # subincomeR 0.4.0
 
 * Updated DOSE dataset to version 2.11

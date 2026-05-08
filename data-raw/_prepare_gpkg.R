@@ -5,7 +5,8 @@
 #* Input:
 #*
 #* - GADM v3.6 dataset, downloaded from https://gadm.org/download_world36.html (layers version)
-#* - DOSE geopackage with custom geometries for non-GADM regions, downloaded from https://zenodo.org/records/7573249
+#* - DOSE geopackage with custom geometries for non-GADM regions, downloaded from
+#*   https://zenodo.org/records/20035157 (file: DOSE_additional_regions_V2_14.gpkg)
 #*
 #* Code by Pablo Garcia Guzman
 #*******************************************************************************
@@ -27,13 +28,11 @@ package.check <- lapply(
 lapply(packages_to_load, require, character=T)
 
 # Set paths ----
-username <- Sys.getenv("USERNAME")
-
-root <- paste0("C:/Users/", username, "/Dropbox/doseR_raw/")
+root <- path.expand("~/Dropbox/doseR_raw/")
 
 raw <- paste0(root, "raw/")
 proc <- paste0(root, "proc/")
-#proc_git <- paste0("C:/Users/", username, "/Documents/GitHub/subincomeR/external-data/")
+#proc_git <- path.expand("~/Documents/GitHub/subincomeR/external-data/")
 
 # Script starts ----------------------------------------------------------------
 
@@ -42,7 +41,7 @@ layers <- st_layers(paste0(raw, "gadm36_levels.gpkg"))
 print(layers$name)
 
 # Read DOSE custom geometries ----
-dose <- st_read(paste0(raw, "DOSE_shapefiles.gpkg")) %>%
+dose <- st_read(paste0(raw, "DOSE_additional_regions_V2_14.gpkg")) %>%
   select(GID_0, NAME_0, GID_1, NAME_1, ENGTYPE_1, geom) %>%
   st_zm()
 

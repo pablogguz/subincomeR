@@ -69,13 +69,13 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
   }
 
   # Define file path
-  file_path <- file.path(storage_dir, "DOSE_V2.11.csv")
+  file_path <- file.path(storage_dir, "DOSE_V2.14.csv")
 
   # Check if the DOSE dataset already exists
   if (!file.exists(file_path)) {
     # If not, download and save it
     message("DOSE dataset not found. Downloading...")
-    zip_url <- "https://zenodo.org/records/16313760/files/DOSE_V2.11.csv?download=1"
+    zip_url <- "https://zenodo.org/records/20035157/files/DOSE_V2.14.csv?download=1"
 
     download_success <- FALSE
     
@@ -120,15 +120,15 @@ getDOSE <- function(years = NULL, countries = NULL, format_countries = "country.
 
   # Filter by years if provided
   if (!is.null(years)) {
-    dose_data <- dose_data %>%
+    dose_data <- dose_data |>
       dplyr::filter(.data$year %in% years)
   }
 
   # Filter by countries if provided
   if (!is.null(countries)) {
-    iso3c_countries <- countrycode::countrycode(countries, origin = format_countries, 
+    iso3c_countries <- countrycode::countrycode(countries, origin = format_countries,
                                               destination = "iso3c", warn = FALSE)
-    dose_data <- dose_data %>%
+    dose_data <- dose_data |>
       dplyr::filter(.data$GID_0 %in% iso3c_countries)
   }
 
