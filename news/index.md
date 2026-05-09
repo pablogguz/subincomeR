@@ -2,6 +2,8 @@
 
 ## subincomeR 0.5.0
 
+CRAN release: 2026-05-08
+
 - Updated DOSE dataset to version 2.14 (Zenodo record 20035157)
 - Replaced the magrittr pipe (`%>%`) with the native R pipe (`|>`) in
   package code, addressing the CRAN NOTE flagged after `sf` stopped
