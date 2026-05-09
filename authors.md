@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/pablogguz/subincomeR/blob/v0.5.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/pablogguz/subincomeR/blob/main/DESCRIPTION)
 
 García Guzmán P (2026). *subincomeR: Access to Global Sub-National
 Income Data*. R package version 0.5.0,
