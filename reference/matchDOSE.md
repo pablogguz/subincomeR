@@ -98,7 +98,7 @@ matched_data <- matchDOSE(lat = c(19.4326, 51.5074),
 #> Passing 2 coordinates to the Nominatim single coordinate geocoder
 #> Query completed in: 2 seconds
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 #> Matching coordinates to subdivisions...
 #> Loading DOSE dataset...
 
@@ -112,7 +112,7 @@ matched_data_df <- matchDOSE(df = df,
 #> Passing 2 coordinates to the Nominatim single coordinate geocoder
 #> Query completed in: 2 seconds
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 #> Matching coordinates to subdivisions...
 #> Loading DOSE dataset...
 
@@ -123,7 +123,7 @@ matched_data_2019 <- matchDOSE(lat = c(19.4326),
 #> Passing 1 coordinate to the Nominatim single coordinate geocoder
 #> Query completed in: 1 seconds
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 #> Matching coordinates to subdivisions...
 #> Loading DOSE dataset...
 
@@ -134,7 +134,7 @@ matched_data_countries <- matchDOSE(lat = c(19.4326, 51.5074),
                                    format_countries = "iso3c")
 #> Country identifiers provided. Skipping geocoding...
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 #> Matching coordinates to subdivisions...
 #> Loading DOSE dataset...
 # }

@@ -46,12 +46,12 @@ geom_all <- getDOSE_geom()
 #> Download successful using curl
 #> Extracting files...
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 
 # Load geometries with automatic download
 geom_auto <- getDOSE_geom(download = TRUE)
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 
 # Load geometries for specific countries
 geom_subset <- getDOSE_geom(
@@ -59,6 +59,6 @@ geom_subset <- getDOSE_geom(
   download = TRUE
 )
 #> 
-#> Geometries saved in /tmp/Rtmp8nwBiQ
+#> Geometries saved in /tmp/Rtmpt7ZLZW
 # }
 ```
