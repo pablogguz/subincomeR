@@ -50,16 +50,21 @@ dose_geom <- sf::st_read(gpkg_path)
 #   print(n=Inf)
 
 data <- getDOSE() %>%
-  mutate(grp_ppp = grp_pc_lcu/PPP) %>% # generate variable for PPP regional GDP per capita
+  mutate(grp_ppp = grp_pc_lcu/PPP) %>% # PPP-adjusted regional GDP per capita (int. $)
   filter(!is.na(grp_ppp)) %>%
   filter(year == 2015) %>% # filter data for 2015
   select(GID_1, year, grp_ppp)
 
 # Match ----
+# arrange(desc(is.na(grp_ppp))) puts NA polygons first so the colored ones
+# render on top. Some DOSE-additional polygons (e.g. CAN.100_1 = "NWT including
+# Nunavut", a historical pre-1999 aggregation) overlap data-bearing polygons
+# and would otherwise hide them in years where the additional shape has no data.
 plot <- left_join(dose_geom, data) %>%
   rename(geometry = geom) %>%
   mutate(grp_ppp = ifelse(grp_ppp>90000, 90000, grp_ppp)) %>%
   mutate(grp_ppp = ifelse(grp_ppp<1000, 1000, grp_ppp)) %>%
+  arrange(desc(is.na(grp_ppp))) %>%
   st_as_sf()
 
 # test <- plot %>%
