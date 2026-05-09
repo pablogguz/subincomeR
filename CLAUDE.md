@@ -1,5 +1,13 @@
 # subincomeR — context for Claude
 
+## Working rules
+
+- **Never commit or push without an explicit instruction from the user
+  for the specific changes at hand.** Authorization for one commit does
+  not carry over to subsequent unrelated changes — ask each time. The
+  user reviews diffs before they land in git history; do not pre-empt
+  that review.
+
 ## What this is
 
 An R package that wraps the MCC-PIK **DOSE** (Database Of Sub-national

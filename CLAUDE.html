@@ -38,6 +38,11 @@
 <div id="subincomer--context-for-claude" class="section level1">
 
 <div class="section level2">
+<h2 id="working-rules">Working rules<a class="anchor" aria-label="anchor" href="#working-rules"></a></h2>
+<ul><li>
+<strong>Never commit or push without an explicit instruction from the user for the specific changes at hand.</strong> Authorization for one commit does not carry over to subsequent unrelated changes — ask each time. The user reviews diffs before they land in git history; do not pre-empt that review.</li>
+</ul></div>
+<div class="section level2">
 <h2 id="what-this-is">What this is<a class="anchor" aria-label="anchor" href="#what-this-is"></a></h2>
 <p>An R package that wraps the MCC-PIK <strong>DOSE</strong> (Database Of Sub-national Economic Output) dataset. It downloads the CSV from Zenodo, lets the user filter it by year/country, and matches arbitrary lat/long coordinates to GADM-1 polygons so each point gets the corresponding sub-national income series.</p>
 <p>Distributed on CRAN: <a href="https://CRAN.R-project.org/package=subincomeR" class="external-link uri">https://CRAN.R-project.org/package=subincomeR</a>. Pkgdown site: <a href="https://pablogguz.github.io/subincomeR/" class="uri">https://pablogguz.github.io/subincomeR/</a>.</p>
